@@ -209,7 +209,7 @@ if isstruct(EEG)
         pop_saveset(EEG,'filename', EEG.filename, 'filepath', tmpJobPath);
         
         % Copy toolbox to folder. temporary until updated in NSG
-        relicafolder = which('RELICA_main.m');
+        relicafolder = which('relica.m');
         relicapath = fileparts(relicafolder);
         copyfile(relicapath,tmpJobPath)
         

@@ -44,7 +44,7 @@ vers = 'RELICA1.0';
 toolsmenu = findobj(fig, 'tag', 'tools');
 submenu = uimenu( toolsmenu, 'label', 'RELICA');
 % add new submenu
-uimenu( submenu, 'label', 'Run RELICA', 'callback', 'EEG = pop_RELICA_main(EEG);');
+uimenu( submenu, 'label', 'Run RELICA', 'callback', 'EEG = pop_relica(EEG);');
 uimenu( submenu, 'label', 'Load RELICA from disk', 'callback', 'EEG = pop_RELICA_load(EEG);');
 uimenu( submenu, 'label', 'Plot results', 'callback', 'EEG = pop_RELICA_plots(EEG);');
 uimenu( submenu, 'label', 'Apply RELICA to main dataset', 'callback', 'EEG.icawinv = EEG.etc.RELICA.A_real; EEG.icaweights = EEG.etc.RELICA.W_real; EEG.icasphere = eye(size(EEG.data,1)); EEG= eeg_checkset(EEG); disp(''Applying weights to dataset... Done!'')');

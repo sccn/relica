@@ -39,6 +39,11 @@
 %   'icaopt'          - Cell array with options for the ICA method used. The format 
 %                       of the inputs must be provided as pairs in a cell array as 
 %                       the  following example. { 'optname1', optvalue1,'optname2', optvalue2  }
+%   'parpools'        - Number of workers to use in the parallelization. 
+%                       The default is the maximum number of MATLAB workers in your
+%                       system (usually the number of cores). This option
+%                       can not be used if the option below ('nsgflag') is
+%                       set to [1].
 %   'nsgflag'         - [0|1] Flag to enable [1] or disable [0] computation
 %                       on NSG. Default: 0
 % The options below require 'nsgflag' set to [1] 
@@ -231,9 +236,9 @@ if isstruct(EEG)
         end
         count = count + 2;
     end
-    com = ['EEG = RELICA_main(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''',' tmparg '); ' ];
+    com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''',' tmparg '); ' ];
 else
-    com = 'EEG = RELICA_main(EEG)';
+    com = 'EEG = pop_relica(EEG)';
 end
 EEGout = eegh(com, EEGout);
 disp('Done.')
