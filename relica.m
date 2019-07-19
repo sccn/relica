@@ -135,7 +135,7 @@ if isstruct(EEG)
             parpool(g.parpools);
         end
         
-        for i=1:M
+        parfor i=1:M
             
             if i == 1
                 X_ = X;

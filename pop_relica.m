@@ -136,6 +136,14 @@ if isstruct(EEG)
     if ischar(g), error(g); end
     
     if nargin < 5
+        
+        % Closing open GUI and creating a new one
+        openfig = findobj('tag', 'pop_relicagui');
+        if ~isempty(openfig)
+            disp('pop_relica warning: there can be only one pop_relica window, closing old one...')
+            close(openfig);
+        end
+        
         guititle = 'Estimate reliability of independent components -- pop_relica()';
         cfolder = '';
         nsgcheck = ['if ' num2str(nsginstalled_flag) ',if get(findobj(''tag'',''chckbx_nsgt''),''value''),' ...
@@ -163,7 +171,7 @@ if isstruct(EEG)
             {wt ht [c1 5.5]  [1 1]}  {wt ht [c2 5.5] [3.5 1]} ...
             };
         
-        result = inputgui('title', guititle, 'geom', geom, 'uilist',uilist, 'helpcom','pophelp(''pop_relica'');');
+        result = inputgui('title', guititle, 'geom', geom, 'uilist',uilist, 'eval', 'set(gcf,''tag'', ''pop_relicagui'')', 'helpcom','pophelp(''pop_relica'');');
         if length(result) == 0 return; end
         errorflag = 0;
         algo = icaalgorithm{result{1}};
