@@ -164,6 +164,8 @@ if isstruct(EEG)
                     if  exist('picard.m', 'file')
                         [tmp, W_] = picard(in,'verbose', true, g.icaopt{:});
                         A_ = pinv(W_);
+                    else
+                        error('PICARD plugin must be installed');
                     end
             end
             n=size(A_,2);
@@ -212,6 +214,17 @@ if isstruct(EEG)
         relicafolder = which('relica.m');
         relicapath = fileparts(relicafolder);
         copyfile(relicapath,tmpJobPath)
+        
+        % PICARD copy
+        if strcmp(algo, 'picard')
+            if exist('picard.m', 'file')
+                picardfolder = which('picard.m');
+                picardpath = fileparts(picardfolder);
+                copyfile(picardpath,tmpJobPath);
+            else
+                error('PICARD plugin must be installed');
+            end
+        end
         
         % Save structure
         save(fullfile(tmpJobPath,'relicainput'),'relicainput');
