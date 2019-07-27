@@ -1,9 +1,9 @@
-% EEG = RELICA_plots(EEG,graphtype,cls,cls_nplots)
+% EEG = relica_plots(EEG,graphtype,cls,cls_nplots)
 %
 % Description: Plots the results of the RELICA functions    
 %
 % Usage:
-%   >> EEG = RELICA_plots(EEG,graphtype,cls,cls_nplots);
+%   >> EEG = relica_plots(EEG,graphtype,cls,cls_nplots);
 %
 % Inputs:
 %   EEG         - Input dataset
@@ -55,7 +55,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function EEG = RELICA_plots(EEG,graphtype,cls,cls_nplots)
+function EEG = relica_plots(EEG,graphtype,cls,cls_nplots)
 
 if nargin<3;cls = [];cls_nplots = [];end
 RELICA = EEG.etc.RELICA;
