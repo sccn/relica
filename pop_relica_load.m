@@ -1,8 +1,8 @@
-% pop_RELICA_load() - load RELICA structure from disk.
+% pop_relica_load() - load RELICA structure from disk.
 %
 % Usage:
-%   >> pop_RELICA_load( EEG ); % pop up interactive window
-%   >> pop_RELICA_load( EEG, file);
+%   >> pop_relica_load( EEG ); % pop up interactive window
+%   >> pop_relica_load( EEG, file);
 %
 % Graphic interface:
 %   Manually select the RELICA.mat file from disk
@@ -40,9 +40,9 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function [EEG, com] = pop_RELICA_load(EEG,file);
+function [EEG, com] = pop_relica_load(EEG,file);
 if nargin < 1
-	help pop_RELICA_load;
+	help pop_relica_load;
 	return;
 end;
 com = '';
