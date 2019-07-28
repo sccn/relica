@@ -80,3 +80,7 @@ With Real IC maps, we refer to the stable IC obtained from the RELICA process. T
  To explore the elements on each of the clusters in the figure *Cluster graph plots*, we can select the option *Cluster bootstraps maps* and then define the cluster to plot (in edit **Cluster to plot**) and the maximum number of elements(IC maps) from the cluster to plot (in edit **Max number of mapx**). Click **Plot** to display the figure below.
  
  <img src="./images/relica_cluster1.jpg" width="400">
+ 
+## Running and visualizing RELICA from MATLAB command line
+Running a RELICA computation, either locally or at NSG, as well as, retrieving and visualizing results can be performed using command line calls in MATLAB. For this, refer to the help of the functions *pop\_relica.m* and *pop\_relica_results.m*
+ 
