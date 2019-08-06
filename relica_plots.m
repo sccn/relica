@@ -59,13 +59,15 @@ function EEG = relica_plots(EEG,graphtype,cls,cls_nplots)
 
 if nargin<3;cls = [];cls_nplots = [];end
 RELICA = EEG.etc.RELICA;
+icadefs;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%     CLUSTERS       %%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(graphtype,'cluster')
-    figure;icassoGraph(RELICA.sR,'line','off','hull','off');
-    set(gcf,'name','RELICA: clusters');
+    figure;
+    icassoGraph(RELICA.sR,'line','off','hull','off');
+    set(gcf,'name','RELICA: clusters','Color',BACKEEGLABCOLOR);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,8 +77,8 @@ if strcmp(graphtype,'real_maps')
     if isempty(EEG.chanlocs)
         error('RELICA requires channel locations to plot the scalp maps!')
     end
-    n_figs = ceil(size(RELICA.A_real,2)/20)
-    for i =1:n_figs;
+    n_figs = ceil(size(RELICA.A_real,2)/20);
+    for i =1:n_figs
         figure;
         set(gcf,'name',['RELICA: real maps fig' num2str(i) '/' num2str(n_figs)]);
         subp = 0;
@@ -85,7 +87,7 @@ if strcmp(graphtype,'real_maps')
             n_cls = RELICA.ind_real(j);
             if sum(RELICA.ind_real==n_cls)>1;quality = 'm';else;quality = '';end
             subplot(4,5,subp);topoplot(RELICA.A_real(:,j),EEG.chanlocs,'electrodes','off');
-            title([num2str(j) ' Cls-' num2str(n_cls) ' ' num2str(round(RELICA.Iq(n_cls)*100)) '%'  ])
+            title([num2str(j) ' Cls-' num2str(n_cls) ' (' num2str(round(RELICA.Iq(n_cls)*100)) '%)'  ])
         end
     end
 end
@@ -100,8 +102,8 @@ if strcmp(graphtype,'cls_maps')
     if ~isempty(cls)
         A = RELICA.A_boot_percomp{cls};
         if isnan(cls_nplots);nplot = size(A,2);else;nplot = min(size(A,2),cls_nplots);end        
-        n_figs = ceil(nplot/20)
-        for i =1:n_figs;
+        n_figs = ceil(nplot/20);
+        for i =1:n_figs
             figure;
             set(gcf,'name',['RELICA: maps cluster' num2str(cls) ' fig ' num2str(i) '/'  num2str(n_figs)]);
             subp = 0;
