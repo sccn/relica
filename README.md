@@ -45,7 +45,7 @@ Then, from the RELICA main window shown above:
 The RELICA window **Help** button will display the RELICA (*pop\_relica.m)* function help message, which lists all available options.
 
 ### Example: running RELICA locally. 
-In the test case example (shown below), we select the ICA method BEAMICA (implementing non-extended Infomax, but quite fast) and set the number of bootstrap decompositions to 10 (low, so as to finish quickly). We set the RELICA results folder to be the data folder ( *.../eeglab/sample_data/*). We leave the other selections to use their default values.
+In the test case example (shown below), we select the ICA method BEAMICA (implementing non-extended Infomax, but quite fast) and set the number of bootstrap decompositions to 100 (default value is 50). We set the RELICA results folder to be the data folder ( *../eeglab/sample_data/*). We leave the other selections to use their default values.
 
 <img src="./images/relica_gui1_example1.jpg" width="400">
 
@@ -75,7 +75,7 @@ This will generate a plot showing the relative compactness of and relationships 
 
 <img src="./images/relica_clusters.jpg" width="400">
 
-In the figure above, the black dots are individual bootstrap ICs, and red integers IC cluster numbers. Yellow dots show ICs closest (in clustering space) to the centroid of each cluster. Note the difference in cluster compactness (i.e., IC reproducibility across bootstrap decompositions) for Cluster 1 (left) versus Cluster 12 (right). Increasing the number of bootstrap decompositions (here only 10) makes these differences more apparent. 
+In the figure above, the black dots are individual bootstrap ICs, and red integers IC cluster numbers. Yellow dots show ICs closest (in clustering space) to the centroid of each cluster. Note the difference in cluster compactness(i.e., IC reproducibility across bootstrap decompositions) for Cluster 2 (left) versus Cluster 7 (right). 
 
 #### Plot type 2: Cluster exemplar maps
 Select the option **Cluster exemplar maps** from the **Plot type** menu in the *pop\_relica_results* window, then press **Plot**. A figure like the one below will be displayed.
@@ -84,8 +84,8 @@ Select the option **Cluster exemplar maps** from the **Plot type** menu in the *
 
 Above, the title of each plot panel shows the cluster number and the component stability index from [Himberg et al. 2004](https://www.sciencedirect.com/science/article/pii/S1053811904001661) (heuristic measure of the quality of the estimates, ideally 100%) for all IC clusters.
 
-#### Plot type3: Cluster scalp maps
-To plot the scalp maps of the ICs in a single IC cluster, select option **Cluster scalp maps** and then specify the cluster number to plot (**Cluster to plot**), using the cluster numbers shown in the **Bootstrap IC clusters** plot (type 1 above). Specify the maximum number of IC scalp maps from the cluster to plot (**Max number of maps**). Pressing **Plot** displays the figure below.
+#### Plot type 3: Cluster scalp maps
+To plot the scalp maps of the ICs in a single IC cluster, select option **Cluster scalp maps** and then specify the cluster number to plot (**Cluster to plot**), using the cluster numbers shown in the **Bootstrap IC clusters** plot (type 5 above, corresponding to IC 3). Specify the maximum number of IC scalp maps from the cluster to plot (**Max number of maps**). Pressing **Plot** displays the figure below.
 
  <img src="./images/relica_cluster1.jpg" width="400">
  
