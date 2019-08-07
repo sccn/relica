@@ -110,7 +110,7 @@ if strcmp(graphtype,'cls_maps')
             for j =20*i-19 :min(20*i,nplot)  
                 subp = subp + 1;                
                 subplot(4,5,subp);topoplot(A(:,j),EEG.chanlocs,'electrodes','off');
-                title([' Cls' num2str(cls) '-' num2str(j)])
+                title(['Cls ' num2str(cls) ' IC ' num2str(j)])
             end
         end
     end
