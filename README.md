@@ -10,7 +10,7 @@ Next, for each IC in each decomposition RELICA computes the dipolarity of the IC
 All plug-ins in EEGLAB, including RELICA, can be installed in two ways. To install RELICA:
 
 1. **From the EEGLAB Plug-in Manager:** Launch EEGLAB and select menu item **File > Manage EEGLAB Extensions** in the main EEGLAB window. A plug-in manager window will pop up. Look for and select the RELICA plug-in, then press **Install/Update**.
- 
+
 2. **From the web:** Download the RELICA plug-in zip file either from [this](https://github.com/sccn/relica) GitHub page (select ‘Download Zip‘) or from [this EEGLAB wiki plug-ins page](https://sccn.ucsd.edu/wiki/Plugin_list_all) (select **RELICA**). Decompress the zip file in the plug-ins folder in the main eeglab folder (*../eeglab/plugins/*).
 
 Restart EEGLAB. If the installation is successful, a menu item for calling RELICA will appear in the EEGLAB menu at **Tools > Run RELICA** .
@@ -79,7 +79,7 @@ In the figure above, the black dots are individual bootstrap ICs, and red intege
 
 #### Plot type 2: Cluster exemplar maps
 Select the option **Cluster exemplar maps** from the **Plot type** menu in the *pop\_relica_results* window, then press **Plot**. A figure like the one below will be displayed.
- 
+
 <img src="./images/relica_realicmaps.jpg" width="800">
 
 Above, the title of each plot panel shows the cluster number and the component stability index from [Himberg et al. 2004](https://www.sciencedirect.com/science/article/pii/S1053811904001661) (heuristic measure of the quality of the estimates, ideally 100%) for all IC clusters.
@@ -88,10 +88,15 @@ Above, the title of each plot panel shows the cluster number and the component s
 To plot the scalp maps of the ICs in a single IC cluster, select option **Cluster scalp maps** and then specify the cluster number to plot (**Cluster to plot**), using the cluster numbers shown in the **Bootstrap IC clusters** plot (type 5 above, corresponding to IC 3). Specify the maximum number of IC scalp maps from the cluster to plot (**Max number of maps**). Pressing **Plot** displays the figure below.
 
  <img src="./images/relica_cluster1.jpg" width="400">
- 
+
  Above, each figure panel shows the scalp map for a member of the selected IC cluster (default: 1), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
 
 ## Running and visualizing RELICA from MATLAB command line
 Running RELICA, either locally or using NSG, and retrieving and visualizing the results can also be performed from the MATLAB command line or by a MATLAB script. For syntax of these calls, refer to the help messages for the functions *pop\_relica.m*  and *pop\_relica_results.m*.
 
- 
+## References
+
+1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014). *RELICA: a method for estimating the reliability of independent components*. NeuroImage, 103, 391-400.          
+
+2) Artoni, F., Delorme A., Makeig S. (2018) *Applying dimension reduction to EEG data by Principal Component Analysis reduces the quality of its subsequent Independent Component decomposition*, Neuroimage 175 176-187
+

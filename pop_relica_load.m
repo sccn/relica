@@ -11,16 +11,26 @@
 %   EEG     - Input dataset
 %   file    - Complete path of RELICA.mat file
 %
-% Author:  Fiorenzo Artoni, The Biorobotics Institute / EPFL, 2017 %
+% Author:  Dr. Fiorenzo Artoni, 2019 %
 %
 % References:
-%
 % (1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014).
 % RELICA: a method for estimating the reliability of independent components.
-% NeuroImage, 103, 391-400.
-
-% Copyright (C) 2017 Fiorenzo Artoni, The Biorobotics Institute , EPFL, SCCN, fiorenzo.artoni@epfl.ch
+% NeuroImage, 103, 391-400.          
+% 
+% (2) Artoni, F., Delorme A., Makeig S. (2018) 
+% Applying dimension reduction to EEG data by Principal Component Analysis
+% reduces the quality of its subsequent Independent Component
+% decomposition, Neuroimage 175 176-187
 %
+% This project was in part supported by the European Union's Horizon 2020
+% research and innovation programme under Marie Sklodowska-Curie Action
+% agreement no. 750947 (BIREHAB)
+% 
+% Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for making the
+% algorithm available and parallelized on the NSG server.
+% Acknowledgments go also to Arnaud Delorme and Scott Makeig (SCCN/INC/UCSD 2019) 
+% for the precious inputs and ideas to perfect the project.
 % Clustering and relative visualization within RELICA makes use of  modified 
 % routines from J. Himberg's open source FastICA - ICASSO package
 % Beamica is part of C. Kothe's  open source BCILAB toolbox 
