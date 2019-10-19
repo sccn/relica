@@ -100,3 +100,23 @@ Running RELICA, either locally or using NSG, and retrieving and visualizing the 
 
 2) Artoni, F., Delorme A., Makeig S. (2018) *Applying dimension reduction to EEG data by Principal Component Analysis reduces the quality of its subsequent Independent Component decomposition*, Neuroimage 175 176-187
 
+## References
+
+1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014). *RELICA: a method for estimating the reliability of independent components*. NeuroImage, 103, 391-400.          
+
+2) Artoni, F., Delorme A., Makeig S. (2018) *Applying dimension reduction to EEG data by Principal Component Analysis reduces the quality of its subsequent Independent Component decomposition*, Neuroimage 175 176-187
+
+## Acknowledgments
+
+Author:  Dr. Fiorenzo Artoni, 2019
+
+This project was in part supported by the European Union's Horizon 2020 research and innovation programme under Marie Sklodowska-Curie Action agreement no. 750947 (BIREHAB)
+
+Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for making the algorithm available and parallelized on the NSG server, for including other ICA algorithms
+
+Acknowledgments go also to Prof. Arnaud Delorme and Prof. Scott Makeig (SCCN/INC/UCSD 2019) for the inputs and ideas to perfect the project.
+
+Clustering and relative visualization within RELICA makes use of  modified  routines from J. Himberg's open source FastICA - ICASSO package
+
+Beamica is part of C. Kothe's  open source BCILAB toolbox 
+
