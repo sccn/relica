@@ -422,7 +422,7 @@ switch method
   P=P(:,1:outputDimension);
  otherwise
   % Start from MMDS
-  initialProjection=mmds(D); initialProjection=initialProjection(:,1:2);
+  initialProjection=mmds(D); initialProjection=initialProjection(:,1:outputDimension);
   % 
   dummy=rand(size(D,1),outputDimension);
   % rand. init projection: set 
