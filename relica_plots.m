@@ -91,8 +91,8 @@ try g.sortsi;   catch, g.sortsi   = 0;   end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(graphtype,'cluster')
     figure;
-    icassoGraph(RELICA.sR,'line','off','hull','off');
-    set(gcf,'name','RELICA: clusters','Color',BACKEEGLABCOLOR);
+    hcluster = relica_plotclusters(EEG.etc.RELICA.sR); % icassoGraph(RELICA.sR,'line','off','hull','off');
+    set(hcluster,'name','RELICA: clusters','Color',BACKEEGLABCOLOR);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,7 +114,7 @@ if strcmp(graphtype,'real_maps')
         if g.sortsi
             comporder = iqindx;
         else
-            comporder = 20*i-19 :min(20*i,size(RELICA.A_real,2));
+            comporder = 1:size(RELICA.A_real,2);
         end
         for j =20*i-19 :min(20*i,size(RELICA.A_real,2))  
             subp = subp + 1;
