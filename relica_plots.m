@@ -90,7 +90,6 @@ try g.sortsi;   catch, g.sortsi   = 0;   end
 %%%%%%%%%     CLUSTERS       %%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(graphtype,'cluster')
-    figure;
     hcluster = relica_plotclusters(EEG.etc.RELICA.sR); % icassoGraph(RELICA.sR,'line','off','hull','off');
     set(hcluster,'name','RELICA: clusters','Color',BACKEEGLABCOLOR);
 end
