@@ -75,7 +75,7 @@ This will generate a plot showing the relative compactness of and relationships 
 
 <img src="./images/relica_clusters.jpg" width="400">
 
-In the figure above, the black dots are individual bootstrap ICs, and red integers IC cluster numbers. Yellow dots show ICs closest (in clustering space) to the centroid of each cluster. Note the difference in cluster compactness(i.e., IC reproducibility across bootstrap decompositions) for Cluster 2 (left) versus Cluster 7 (right). 
+In the figure above, the colored dots are individual bootstrap ICs. Here the color represent their belonging to a specific cluster. Cluster centroids are represented with dots of the same cluster color as the cluster exemplars but with a black border, and the cluster number is indicated next to it. Note the difference in cluster compactness(i.e., IC reproducibility across bootstrap decompositions) for Cluster 2 (left) versus Cluster 25 (right). 
 
 #### Plot type 2: Cluster exemplar maps
 Select the option **Cluster exemplar maps** from the **Plot type** menu in the *pop\_relica_results* window, then press **Plot**. A figure like the one below will be displayed.
