@@ -84,7 +84,7 @@ try
 catch
     disp('relica_plots() error: calling convention {''key'', value, ... } error'); return;
 end
-try g.sortsi;   catch, g.sortsi   = 0;   end
+try g.sortsi;   catch, g.sortsi   = 1;   end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%     CLUSTERS       %%%%%%%%%%%
@@ -121,7 +121,7 @@ if strcmp(graphtype,'real_maps')
             if sum(RELICA.ind_real==n_cls)>1;quality = 'm';else;quality = '';end
             subplot(4,5,subp);topoplot(RELICA.A_real(:,comporder(j)),EEG.chanlocs,'electrodes','off');
             title([' Cls ' num2str(n_cls) ' (' num2str(round(RELICA.Iq(comporder(j))*100)) '%)'  ]);
-           %title([num2str(j) ' Cls-' num2str(n_cls) ' (' num2str(round(RELICA.Iq(n_cls)*100)) '%)'  ])
+%            title([num2str(j) ' Cls-' num2str(n_cls) ' (' num2str(round(RELICA.Iq(n_cls)*100)) '%)'  ])
         end
     end
 end
