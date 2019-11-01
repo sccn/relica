@@ -242,28 +242,32 @@ end
 
 % Command history output
 if isstruct(EEG)
-    tmparg = ['''' args{1} ''',' num2str(args{2})];
-    count = 3;
-    for iarg = 1: length(args)/2-1
-        if ~iscell(args{count+1})
-            tmparg = [tmparg ',''' args{count} ''',' num2str(args{count+1})];
-        else           
-            opttext = '{';
-            for i = 1:length(args{count+1})
-                if isstr(args{count+1}{i})
-                    opttext = [opttext  '''' args{count+1}{i} ''''];
-                elseif isnumeric(args{count+1}{i})
-                    opttext = [opttext ' ' num2str(args{count+1}{i})];
-                elseif islogical(args{count+1}{i})
-                    opttext = [opttext ' ' num2str(args{count+1}{i})];
+    if ~isempty(args)
+        tmparg = ['''' args{1} ''',' num2str(args{2})];
+        count = 3;
+        for iarg = 1: length(args)/2-1
+            if ~iscell(args{count+1})
+                tmparg = [tmparg ',''' args{count} ''',' num2str(args{count+1})];
+            else
+                opttext = '{';
+                for i = 1:length(args{count+1})
+                    if isstr(args{count+1}{i})
+                        opttext = [opttext  '''' args{count+1}{i} ''''];
+                    elseif isnumeric(args{count+1}{i})
+                        opttext = [opttext ' ' num2str(args{count+1}{i})];
+                    elseif islogical(args{count+1}{i})
+                        opttext = [opttext ' ' num2str(args{count+1}{i})];
+                    end
                 end
+                opttext = [opttext '}'];
+                tmparg = [tmparg ',''' args{count} ''',' opttext];
             end
-            opttext = [opttext '}'];
-            tmparg = [tmparg ',''' args{count} ''',' opttext];
+            count = count + 2;
         end
-        count = count + 2;
+        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''',' tmparg ');' ];
+    else
+        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''');' ];
     end
-    com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''',' tmparg '); ' ];
 else
     com = 'EEG = pop_relica(EEG)';
 end
