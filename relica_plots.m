@@ -103,7 +103,7 @@ if strcmp(graphtype,'real_maps')
     end
     n_figs = ceil(size(RELICA.A_real,2)/20);
     if g.sortsi
-        [~,iqindx] = sort(RELICA.Iq, 'descend');
+        [~,iqindx] = sort(RELICA.Iq, 'descend', 'MissingPlacement', 'last');
     end
     for i =1:n_figs
         figure;
@@ -116,12 +116,14 @@ if strcmp(graphtype,'real_maps')
             comporder = 1:size(RELICA.A_real,2);
         end
         for j =20*i-19 :min(20*i,size(RELICA.A_real,2))  
-            subp = subp + 1;
-            n_cls = RELICA.ind_real(comporder(j));
-            if sum(RELICA.ind_real==n_cls)>1;quality = 'm';else;quality = '';end
-            subplot(4,5,subp);topoplot(RELICA.A_real(:,comporder(j)),EEG.chanlocs,'electrodes','off');
-            title([' Cls ' num2str(n_cls) ' (' num2str(round(RELICA.Iq(comporder(j))*100)) '%)'  ]);
-%            title([num2str(j) ' Cls-' num2str(n_cls) ' (' num2str(round(RELICA.Iq(n_cls)*100)) '%)'  ])
+            if max(RELICA.ind_real) > comporder(j) % Necessary for rand deficient data
+                subp = subp + 1;
+                n_cls = RELICA.ind_real(comporder(j));
+                if sum(RELICA.ind_real==n_cls)>1;quality = 'm';else;quality = '';end
+                subplot(4,5,subp);topoplot(RELICA.A_real(:,comporder(j)),EEG.chanlocs,'electrodes','off');
+                title([' Cls ' num2str(n_cls) ' (' num2str(round(RELICA.Iq(comporder(j))*100)) '%)'  ]);
+                %            title([num2str(j) ' Cls-' num2str(n_cls) ' (' num2str(round(RELICA.Iq(n_cls)*100)) '%)'  ])
+            end
         end
     end
 end
