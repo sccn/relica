@@ -243,7 +243,17 @@ end
 % Command history output
 if isstruct(EEG)
     if ~isempty(args)
-        tmparg = ['''' args{1} ''',' num2str(args{2})];
+        if ~iscell(args{2})
+            tmparg = ['''' args{1} ''',' num2str(args{2})];
+        else
+            argcell = ['{''' args{2}{1} ''''];
+            for i=2:length(args{2})
+                argcell = [argcell ',' num2str(args{2}{i}) ];
+            end
+            argcell=[argcell '}'];
+                
+            tmparg = ['''' args{1} ''',' argcell];
+        end
         count = 3;
         for iarg = 1: length(args)/2-1
             if ~iscell(args{count+1})
