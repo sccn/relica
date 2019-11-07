@@ -151,7 +151,8 @@ txt=cellstr(num2str([1:Ncluster]'));
 
 %% Plot centrotypes
 for i=1:Ncluster
-       hannotation = annotation('textbox',[xlabelcentroid(index2centrotypes(i)), ylabelcentroid(index2centrotypes(i)), 0.02,0.02], 'String', txt{i},'FitBoxToText', 'on', 'Margin', 0 , 'Units', 'normalized');
+       textcoord = double([xlabelcentroid(index2centrotypes(i)), ylabelcentroid(index2centrotypes(i)), 0.02,0.02]);
+       hannotation = annotation('textbox',textcoord, 'String', txt{i},'FitBoxToText', 'on', 'Margin', 0 , 'Units', 'normalized');
        set(hannotation,'HorizontalAlignment', 'center',...
                        'VerticalAlignment', 'middle',...
                        'Color', [0 0 0],...
