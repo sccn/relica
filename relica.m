@@ -199,7 +199,217 @@ if isstruct(EEG)
         % saving file
         save([folder_relica filesep 'sR'],'sR','-v7.3')
         
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%% PART 2: PROCESSING %%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        M=icassoGet(sR,'M');
+        rdim=icassoGet(sR,'rdim');
+        Wt = cell2mat(sR.W');
+        similarity = abs(corr(Wt'));
+        clusterparameters={'simfcn',similarity,'s2d','sim2dis','strategy','AL','L','rdim'};
+        num_of_args=length(clusterparameters);
+        
+        %%%%%%%%%%%%% arguments %%%%%%%%%%%%%%%%
+        for i=1:2:num_of_args
+            switch lower(clusterparameters{i})
+                case 'simfcn'
+                    simfcn=clusterparameters{i+1};
+                    % Explicit similarity matrix?
+                    if isnumeric(simfcn)
+                        if size(simfcn,1)==M && size(simfcn,2)==M
+                            sR.cluster.similarity=simfcn;
+                            sR.cluster.simfcn='<similarities given explicitly>';
+                        else
+                            error('Explicitly given similarity matrix has wrong size!');
+                        end
+                    else
+                        % should be a string
+                        switch lower(simfcn)
+                            case 'abscorr'
+                                sR.cluster.simfcn=lower(simfcn);
+                            otherwise
+                                error('''simfcn'' must be string ''abscorr'' or an MxM similarity matrix');
+                        end
+                    end
+                case 's2d'
+                    s2dfcn=lower(clusterparameters{i+1});
+                    if ~ischar(s2dfcn)
+                        error('''s2d'' must be a string (name of a function)');
+                    end
+                    sR.cluster.s2d=s2dfcn;
+                case 'l'
+                    L=clusterparameters{i+1};
+                    if isnumeric(L)
+                        % The user has specified max number for clusters
+                        % Check L
+                        if fix(L)~=L
+                            error('''L'' must be an integer.');
+                        elseif L<2
+                            error('''L'' must be at least 2.');
+                        elseif L>M
+                            error('''L'' cannot be more than the number of estimates.');
+                        end
+                    else
+                        if ~strcmp(lower(L),'rdim')
+                            error('''L'' expects an integer value or ''rdim''.');
+                        end
+                        % set (reduced) data dimension
+                        L=icassoGet(sR,'rdim');
+                    end
+                    if L>100
+                        warning(['R-index requested for more that 100 clusters: this can' ...
+                            ' be heavy...']);
+                    end
+                case 'strategy'
+                    strategy=clusterparameters{i+1};
+                    if ~ischar(strategy)
+                        error('''strategy'' must be a string');
+                    end
+                    % we are case insensitive
+                    strategy=upper(strategy);
+                    sR.cluster.strategy=strategy;
+                    switch sR.cluster.strategy
+                        case {'AL','CL','SL'}
+                            % hierarchical clustering
+                        otherwise
+                            error(['Strategy ' strategy ' not implemented.']);
+                    end
+                otherwise
+                    error(['Indentifier ' clusterparameters{i} ' not recognized.']);
+            end
+        end
+        
+        %%%%%%%%% Compute similarities %%%%%%%%%%
+        switch lower(sR.cluster.simfcn)
+            case '<similarities given explicitly>'
+                % already handled
+            case 'abscorr'
+                sR.cluster.similarity=abs(corrw(icassoGet(sR,'W'),icassoGet(sR,'dewhitemat')));
+                %just to make sure
+                sR.cluster.similarity(sR.cluster.similarity>1)=1;
+                sR.cluster.similarity(sR.cluster.similarity<0)=0;
+        end
+        %%%%% Convert to dissimilarities using .s2d
+        D=feval(sR.cluster.s2d, sR.cluster.similarity);
+        %%%%% Make partition %%%%%%%%%%%%%%%
+        [sR.cluster.partition,sR.cluster.dendrogram.Z,sR.cluster.dendrogram.order]=...
+            hcluster(D,sR.cluster.strategy);
+        %%%%% Compute cluster validity %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % init R
+        sR.cluster.index.R=ones(M,1)*NaN;
+        % compute
+        sR.cluster.index.R(1:L,1)=rindex(D,sR.cluster.partition(1:L,:));
+        
+        save([folder_relica filesep 'sR'],'sR','-v7.3')
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%% PART 3: PROJECT %%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % sR=icassoProjection(sR,'cca','s2d','sqrtsim2dis','epochs',75);
+        outputDimension=2;
+        method='cca';
+        projectionparameters={'s2d','sqrtsim2dis','epochs',75 ,'alpha',0.7,'epochs',75,...
+            'radius',max(icassoGet(sR,'M')/20,10),'s2d','sqrtsim2dis'};
+        num_of_args=length(projectionparameters);
+        for i=1:2:num_of_args
+            switch lower(projectionparameters{i})
+                case 's2d'
+                    sim2dis=projectionparameters{i+1};
+                case 'epochs'
+                    epochs=projectionparameters{i+1};
+                case 'alpha'
+                    alpha=projectionparameters{i+1};
+                case 'radius'
+                    CCAradius=projectionparameters{i+1};
+                otherwise
+                    error(['Indentifier ' projectionparameters{i} ' not recognized.']);
+            end
+        end
+        D=feval(sim2dis,sR.cluster.similarity);
+        disp([char(13) 'Projection, using ' upper(method) char(13)]);
+        switch method
+            case 'mmds'
+                P=mmds(D);
+                P=P(:,1:outputDimension);
+            otherwise
+                % Start from MMDS
+                initialProjection=mmds(D); initialProjection=initialProjection(:,1:outputDimension);
+                %
+                dummy=rand(size(D,1),outputDimension);
+                % rand. init projection: set
+                % initialProjection=dummy;
+                switch method
+                    case 'sammon' % Use SOM Toolbox Sammon
+                        P=sammon(dummy,initialProjection,epochs,'steps',alpha,D);
+                    case 'cca'    % Use SOM Toolbox CCA
+                        P=cca(dummy,initialProjection,epochs,D,alpha,CCAradius);
+                end
+        end
+        sR.projection.method=method;
+        sR.projection.parameters=projectionparameters;
+        sR.projection.coordinates=P;
+        
+        save([folder_relica filesep 'sR'],'sR','-v7.3')
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%% PART 4: POST PROCESS %%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        L=icassoGet(sR,'rdim');[Iq, A_centroid, W_centroid]=icassoResult(sR,L);
+        ncomp = size(sR.A{1},2);
+        A_boot_percomp{ncomp}=[]; W_boot_percomp{ncomp} =[]; indici_boot_percomp{ncomp} = [];
+        A_boot = sR.A; W_boot = sR.W;
+        nrun = length(A_boot);
+        indici = sR.cluster.partition(ncomp,:);
+        for i = 1 : length(indici)/ncomp
+            b = indici(ncomp*(i-1)+1 : ncomp*i);
+            for j=1:length(b) % nel cluster j ci vanno tutte le componenti
+                A_boot_percomp{b(j)}(:,end+1) = A_boot{i}(:,j);
+                W_boot_percomp{b(j)}(end+1,:) = W_boot{i}(j,:);
+                indici_boot_percomp{b(j)}(end+1,:) = [i j];
+            end
+        end
+        indici = sR.cluster.partition(ncomp,:);
+        indici_boot_permatrice = reshape(indici,ncomp,length(sR.A));
+        
+        real.A = sR.A{1};
+        real.W = sR.W{1};
+        real.S = sR.whiteningMatrix;
+        real.clustok_ord = 0;
+        indice = indici_boot_permatrice(:,1);
+        for i = 1:ncomp
+            ind = find(indice == i);
+            if ~isempty(ind)
+                real.A_ord{i} = real.A(:,ind);
+                real.Ind_ord{i} = ind;
+                real.W_ord{i} = real.W(ind,:);
+            else
+                real.A_ord{i} = [];
+                real.Ind_ord{i} = [];
+                real.W_ord{i} = [];
+            end
+        end
+        RELICA.Iq = Iq;
+        RELICA.sR = sR;
+        RELICA.A_boot_percomp = A_boot_percomp;
+        RELICA.W_boot_percomp = W_boot_percomp;
+        RELICA.indici_boot_percomp = indici_boot_percomp;
+        RELICA.indici_boot_permatrice = indici_boot_permatrice;
+        RELICA.A_centroid = A_centroid;
+        RELICA.W_centroid = W_centroid;
+        RELICA.A_real = real.A;
+        RELICA.W_real = real.W;
+        RELICA.ind_real = indici_boot_permatrice(:,1); %which cluster they belong to
+        RELICA.folder_output = [folder_relica filesep 'RELICA'];
+        save([folder_relica filesep 'RELICA'],'RELICA','-v7.3');
+        try delete([folder_relica filesep 'sR.mat']); end
+        EEG.etc.RELICA = RELICA;
+        
     else
+        %%%%%%%%%%%%%%%%%%%%%%
+        %%% NSG Submission %%%
+        %%%%%%%%%%%%%%%%%%%%%%
+        
         % Creating structure of inputs to be saved
         % This structure is retreived later on whith the results as parameters
         % here are needed
@@ -241,19 +451,17 @@ if isstruct(EEG)
             end
         end
         
-        % Save structure
+        % Save structure with inputs
         save(fullfile(tmpJobPath,'relicainput'),'relicainput');
         
-        % Section 2
+        %  Section 2
         %  Manage m-file to be executed in NSG
-        % Write m-file to be run in NSG.
-        % Options defined in plugin are written into the file
-        
+        %  Write m-file to be run in NSG.
+        %  Options defined in plugin are written into the file    
         relicansg_writejobfile
         
         % Section 3
         % Submit job to NSG
-        
         pop_nsg('run',tmpJobPath,'filename', 'relicansg_job.m', 'jobid', g.jobid,'runtime', g.runtime);
         display([char(10) 'RELICA job (jobID:'  g.jobid ') has been submitted to NSG' char(10) ...
                           'Copy or keep in mind the jobID assigned to this job to retreive the results later on.' char(10)...
@@ -263,6 +471,9 @@ if isstruct(EEG)
         return;
     end
 else
+    %%%%%%%%%%%%%%%%%%%%%%
+    %%%   NSG Results  %%%
+    %%%%%%%%%%%%%%%%%%%%%%
     try
         nsg_info;  % get information on where to create the temporary file
     catch
@@ -272,224 +483,12 @@ else
     pop_nsg('output',EEG);
     if exist(outputfolder,'dir')
         tmpJobPath = fullfile(outputfolder,['nsgresults_' EEG]);
-        load(fullfile(tmpJobPath,'relicatmp', 'sR.mat'));
-        load(fullfile(tmpJobPath,'relicatmp', 'relicainput.mat'));
+         load(fullfile(tmpJobPath,'relicatmp', 'relicainput.mat'), 'relicainput');
         
-        % Reinstating variables
+        % Loading EEG with RELICA results
         EEG  = pop_loadset(fullfile(tmpJobPath,'relicatmp',relicainput.eegfilename));
-        M = relicainput.M;
-        mode_relica = relicainput.mode_relica;
-        algo = relicainput.algo;
-        folder_relica = relicainput.folder_relica;
-        g = relicainput.opts;
     else
         display('Job not finded. It may be that the job has not finished yet');
         exit;
     end
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% PART 2: PROCESSING %%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-M=icassoGet(sR,'M');
-rdim=icassoGet(sR,'rdim');
-Wt = cell2mat(sR.W');
-similarity = abs(corr(Wt'));
-clusterparameters={'simfcn',similarity,'s2d','sim2dis','strategy','AL','L','rdim'};
-num_of_args=length(clusterparameters);
-
-%%%%%%%%%%%%% arguments %%%%%%%%%%%%%%%%
-for i=1:2:num_of_args
-  switch lower(clusterparameters{i})
-   case 'simfcn'
-    simfcn=clusterparameters{i+1};
-    % Explicit similarity matrix?
-    if isnumeric(simfcn)
-      if size(simfcn,1)==M && size(simfcn,2)==M
-        sR.cluster.similarity=simfcn;
-        sR.cluster.simfcn='<similarities given explicitly>';
-      else 
-        error('Explicitly given similarity matrix has wrong size!');
-      end
-    else
-      % should be a string
-      switch lower(simfcn)
-       case 'abscorr'
-        sR.cluster.simfcn=lower(simfcn);
-       otherwise
-        error('''simfcn'' must be string ''abscorr'' or an MxM similarity matrix');
-      end
-    end
-   case 's2d'
-    s2dfcn=lower(clusterparameters{i+1});
-    if ~ischar(s2dfcn)
-      error('''s2d'' must be a string (name of a function)');
-    end
-    sR.cluster.s2d=s2dfcn;
-   case 'l'
-    L=clusterparameters{i+1};
-    if isnumeric(L)
-      % The user has specified max number for clusters     
-      % Check L 
-      if fix(L)~=L
-        error('''L'' must be an integer.');
-      elseif L<2
-        error('''L'' must be at least 2.');
-      elseif L>M
-        error('''L'' cannot be more than the number of estimates.');
-      end
-    else
-      if ~strcmp(lower(L),'rdim')
-        error('''L'' expects an integer value or ''rdim''.');
-      end
-      % set (reduced) data dimension
-      L=icassoGet(sR,'rdim');
-    end   
-    if L>100
-      warning(['R-index requested for more that 100 clusters: this can' ...
-               ' be heavy...']);
-    end
-   case 'strategy'
-    strategy=clusterparameters{i+1};
-    if ~ischar(strategy)
-      error('''strategy'' must be a string');
-    end
-    % we are case insensitive
-    strategy=upper(strategy);
-    sR.cluster.strategy=strategy;
-    switch sR.cluster.strategy
-     case {'AL','CL','SL'}
-     % hierarchical clustering
-     otherwise
-      error(['Strategy ' strategy ' not implemented.']);
-    end
-   otherwise
-    error(['Indentifier ' clusterparameters{i} ' not recognized.']);
-  end
-end
-
-%%%%%%%%% Compute similarities %%%%%%%%%%
-switch lower(sR.cluster.simfcn)
- case '<similarities given explicitly>'
-   % already handled
- case 'abscorr'
-  sR.cluster.similarity=abs(corrw(icassoGet(sR,'W'),icassoGet(sR,'dewhitemat')));
-  %just to make sure  
-  sR.cluster.similarity(sR.cluster.similarity>1)=1; 
-  sR.cluster.similarity(sR.cluster.similarity<0)=0;
-end
-%%%%% Convert to dissimilarities using .s2d
-D=feval(sR.cluster.s2d, sR.cluster.similarity);
-%%%%% Make partition %%%%%%%%%%%%%%%
-[sR.cluster.partition,sR.cluster.dendrogram.Z,sR.cluster.dendrogram.order]=...
-    hcluster(D,sR.cluster.strategy);
-%%%%% Compute cluster validity %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% init R
-sR.cluster.index.R=ones(M,1)*NaN;
-% compute
-sR.cluster.index.R(1:L,1)=rindex(D,sR.cluster.partition(1:L,:));  
-
-save([folder_relica filesep 'sR'],'sR','-v7.3')
- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% PART 3: PROJECT %%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% sR=icassoProjection(sR,'cca','s2d','sqrtsim2dis','epochs',75);
-outputDimension=2;
-method='cca';
-projectionparameters={'s2d','sqrtsim2dis','epochs',75 ,'alpha',0.7,'epochs',75,...
-	   'radius',max(icassoGet(sR,'M')/20,10),'s2d','sqrtsim2dis'};
-num_of_args=length(projectionparameters);
-for i=1:2:num_of_args
-  switch lower(projectionparameters{i})
-   case 's2d'
-    sim2dis=projectionparameters{i+1};
-   case 'epochs'
-    epochs=projectionparameters{i+1};
-   case 'alpha'
-    alpha=projectionparameters{i+1};
-   case 'radius'
-    CCAradius=projectionparameters{i+1};
-   otherwise
-    error(['Indentifier ' projectionparameters{i} ' not recognized.']);
-  end
-end
-D=feval(sim2dis,sR.cluster.similarity);
-disp([char(13) 'Projection, using ' upper(method) char(13)]);
-switch method 
- case 'mmds'
-  P=mmds(D); 
-  P=P(:,1:outputDimension);
- otherwise
-  % Start from MMDS
-  initialProjection=mmds(D); initialProjection=initialProjection(:,1:outputDimension);
-  % 
-  dummy=rand(size(D,1),outputDimension);
-  % rand. init projection: set 
-  % initialProjection=dummy;
-  switch method
-   case 'sammon' % Use SOM Toolbox Sammon 
-    P=sammon(dummy,initialProjection,epochs,'steps',alpha,D);
-   case 'cca'    % Use SOM Toolbox CCA 
-    P=cca(dummy,initialProjection,epochs,D,alpha,CCAradius);
-  end
-end
-sR.projection.method=method;
-sR.projection.parameters=projectionparameters;
-sR.projection.coordinates=P;
-
-save([folder_relica filesep 'sR'],'sR','-v7.3')
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% PART 4: POST PROCESS %%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-L=icassoGet(sR,'rdim');[Iq, A_centroid, W_centroid]=icassoResult(sR,L);
-ncomp = size(sR.A{1},2);
-A_boot_percomp{ncomp}=[]; W_boot_percomp{ncomp} =[]; indici_boot_percomp{ncomp} = [];
-A_boot = sR.A; W_boot = sR.W;
-nrun = length(A_boot);
-indici = sR.cluster.partition(ncomp,:);
-for i = 1 : length(indici)/ncomp
-    b = indici(ncomp*(i-1)+1 : ncomp*i);
-    for j=1:length(b) % nel cluster j ci vanno tutte le componenti 
-        A_boot_percomp{b(j)}(:,end+1) = A_boot{i}(:,j);
-        W_boot_percomp{b(j)}(end+1,:) = W_boot{i}(j,:);
-        indici_boot_percomp{b(j)}(end+1,:) = [i j];
-    end
-end
-indici = sR.cluster.partition(ncomp,:);
-indici_boot_permatrice = reshape(indici,ncomp,length(sR.A));
-
-real.A = sR.A{1};
-real.W = sR.W{1};
-real.S = sR.whiteningMatrix;
-real.clustok_ord = 0;
-indice = indici_boot_permatrice(:,1);
-for i = 1:ncomp
-    ind = find(indice == i);
-    if ~isempty(ind)
-        real.A_ord{i} = real.A(:,ind);
-        real.Ind_ord{i} = ind;
-        real.W_ord{i} = real.W(ind,:);
-    else
-        real.A_ord{i} = [];
-        real.Ind_ord{i} = [];
-        real.W_ord{i} = [];
-    end        
-end
-RELICA.Iq = Iq;
-RELICA.sR = sR;
-RELICA.A_boot_percomp = A_boot_percomp;
-RELICA.W_boot_percomp = W_boot_percomp;
-RELICA.indici_boot_percomp = indici_boot_percomp;
-RELICA.indici_boot_permatrice = indici_boot_permatrice;
-RELICA.A_centroid = A_centroid;
-RELICA.W_centroid = W_centroid;
-RELICA.A_real = real.A;
-RELICA.W_real = real.W;
-RELICA.ind_real = indici_boot_permatrice(:,1); %which cluster they belong to
-RELICA.folder_output = [folder_relica filesep 'RELICA'];
-save([folder_relica filesep 'RELICA'],'RELICA','-v7.3');
-try delete([folder_relica filesep 'sR.mat']); end
-EEG.etc.RELICA = RELICA;
