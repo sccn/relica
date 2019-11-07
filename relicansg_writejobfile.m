@@ -1,12 +1,32 @@
-
-% Testing vars
-% tmpJobPath = pwd;
-% mode_relica =  'point';
-% M = 200;
-% parpools = 4;
-% algo = 'beamica';
-
-%-----------
+% Author:  Ramon Martinez-Cancino, UCSD, INC , SCCN  2019
+%
+% References:
+% (1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014).
+% RELICA: a method for estimating the reliability of independent components.
+% NeuroImage, 103, 391-400.          
+% 
+% (2) Artoni, F., Delorme A., Makeig S. (2018) 
+% Applying dimension reduction to EEG data by Principal Component Analysis
+% reduces the quality of its subsequent Independent Component
+% decomposition, Neuroimage 175 176-187
+%
+% This project was in part supported by the European Union's Horizon 2020
+% research and innovation programme under Marie Sklodowska-Curie Action
+% agreement no. 750947 (BIREHAB)
+% 
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 opttext = '{';
 for i = 1:length(g.icaopt)
@@ -23,65 +43,14 @@ opttext = [opttext '}'];
 fid = fopen( fullfile(tmpJobPath,'relicansg_job.m'), 'w');
 fprintf(fid, 'eeglab;\n');
 fprintf(fid, 'EEG  = pop_loadset(''%s'');\n', EEG.filename);
-fprintf(fid, 'data = EEG.data;\n');
-fprintf(fid, 'X    = data(:,:);\n');
-fprintf(fid, '\n');
-fprintf(fid, 'mode_relica = ''%s'';\n', mode_relica);
-fprintf(fid, 'M           = %u;\n', M);
-fprintf(fid, 'algo        = ''%s'';\n', algo);
+% Defininng variables
+fprintf(fid, 'mode_relica   = ''%s'';\n', mode_relica);
+fprintf(fid, 'M             = %u;\n', M);
+fprintf(fid, 'algo          = ''%s'';\n', algo);
+fprintf(fid, 'folder_relica = eval(''fullfile(pwd, ''''relicaoutput'''')'');\n');
 fprintf(fid, 'icaopt     = eval(''%s'');\n', opttext);
-fprintf(fid, '\n');
-fprintf(fid, 'ltrial      = size(data,2);\n');
-fprintf(fid, 'sR = icassoStruct(X);\n');
-fprintf(fid, 'sR.mode =''both'';\n');
-fprintf(fid, '\n');
-fprintf(fid, 'k=0; index=[]; tempi = zeros(1,M);\n');
-fprintf(fid, 'A = cell(1,M); W = A; index = A;\n');
-fprintf(fid, '\n');
-fprintf(fid, 'clusterinfo = parcluster;\n');
-fprintf(fid, 'parpool(clusterinfo.NumWorkers);\n');
-fprintf(fid, 'parfor i=1:M\n');
-fprintf(fid, 'if i == 1\n');
-fprintf(fid, 'X_ = X;\n');
-fprintf(fid, 'else\n');
-fprintf(fid, 'if strcmp(mode_relica,''trial'') && size(data,3)>1 \n');
-fprintf(fid, 'X_=relica_bootstrap(X,ltrial);\n');
-fprintf(fid, 'else\n');
-fprintf(fid, 'X_=relica_bootstrap(X);\n');
-fprintf(fid, 'end\n');
-fprintf(fid, 'end\n');
-fprintf(fid, 'in = X_(:,:);\n');
-fprintf(fid, 'switch algo \n');
-% BEAMICA
-fprintf(fid, 'case ''beamica''\n');
-fprintf(fid, 'if i==1; nrun = 1500; else; nrun = 1200; end\n');
-fprintf(fid, '[Wf,Sf] = beamica(in,{},eye(size(in,1)),pinv(sqrtm(cov(in''))),mean(in,2),nrun,0.5,0.5,false,true,true,1);\n');
-fprintf(fid, 'W_ = Wf * Sf;\n');
-fprintf(fid, 'A_ = pinv(W_);\n');
-fprintf(fid, '\n');
-% RUNICA
-fprintf(fid, 'case ''runica''\n');
-fprintf(fid, '[Wf,Sf] = runica(in,''verbose'', ''on'', icaopt{:});');
-fprintf(fid, 'W_ = Wf * Sf;\n');
-fprintf(fid, 'A_ = pinv(W_);\n');
-fprintf(fid, '\n');
-% PICARD
-fprintf(fid, 'case ''picard''\n');
-fprintf(fid, 'if  exist(''picard.m'', ''file'')\n');
-fprintf(fid, '[tmp, W_] = picard(in,''verbose'', true, icaopt{:});\n');
-fprintf(fid, 'A_ = pinv(W_);\n');
-fprintf(fid, 'end\n');
 
-fprintf(fid, 'end\n');
-fprintf(fid, 'n=size(A_,2);\n');
-fprintf(fid, 'index{i}=[repmat(i,n,1), [1:n]'']'';\n');
-fprintf(fid, 'A{i}=A_; W{i}=W_;\n');
-fprintf(fid, 'end\n');
-fprintf(fid, '\n');
-fprintf(fid, 'sR.whiteningMatrix   = eye(size(data,1));\n');
-fprintf(fid, 'sR.dewhiteningMatrix = eye(size(data,1));\n');
-fprintf(fid, 'sR.index = cell2mat(index)'';\n');
-fprintf(fid, 'sR.A =A; sR.W =W;\n');
-fprintf(fid, '\n');
-fprintf(fid, 'save(''sR'',''sR'',''-v7.3'')\n');
+% Calling relica
+fprintf(fid,'[EEG]=relica(EEG,M,algo,mode_relica, folder_relica,''icaopt'', icaopt);\n');
+fprintf(fid,'pop_saveset(EEG,''filename'', EEG.filename, ''filepath'', pwd)');
 fclose(fid);
