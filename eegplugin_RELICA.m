@@ -8,18 +8,26 @@
 %   trystrs    - [struct] "try" strings for menu callbacks.
 %   catchstrs  - [struct] "catch" strings for menu callbacks.
 %
-% Author:  Fiorenzo Artoni, The Biorobotics Institute / EPFL, 2017 %
+% Author:  Dr. Fiorenzo Artoni EPFL, 2019 %
 %
-% Reference:
-%
+% References:
 % (1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014).
 % RELICA: a method for estimating the reliability of independent components.
-% NeuroImage, 103, 391-400.
+% NeuroImage, 103, 391-400.          
 % 
-
-
-% Copyright (C) 2017 Fiorenzo Artoni, The Biorobotics Institute , EPFL, SCCN, fiorenzo.artoni@epfl.ch
+% (2) Artoni, F., Delorme A., Makeig S. (2018) 
+% Applying dimension reduction to EEG data by Principal Component Analysis
+% reduces the quality of its subsequent Independent Component
+% decomposition, Neuroimage 175 176-187
+%
+% This project was in part supported by the European Union's Horizon 2020
+% research and innovation programme under Marie Sklodowska-Curie Action
+% agreement no. 750947 (BIREHAB)
 % 
+% Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for making the
+% algorithm available and parallelized on the NSG server and including other ICA algorithms
+% and Arnaud Delorme and Scott Makeig (SCCN/INC/UCSD 2019) for the constant inputs
+% and ideas to perfect the functionality.
 % Clustering and relative visualization within RELICA makes use of  modified 
 % routines from J. Himberg's open source FastICA - ICASSO package
 % Beamica is part of C. Kothe's  open source BCILAB toolbox 
@@ -44,7 +52,7 @@ vers = 'RELICA1.0';
 toolsmenu = findobj(fig, 'tag', 'tools');
 submenu = uimenu( toolsmenu, 'label', 'RELICA');
 % add new submenu
-uimenu( submenu, 'label', 'Run RELICA', 'callback', 'EEG = pop_RELICA_main(EEG);');
-uimenu( submenu, 'label', 'Load RELICA from disk', 'callback', 'EEG = pop_RELICA_load(EEG);');
-uimenu( submenu, 'label', 'Plot results', 'callback', 'EEG = pop_RELICA_plots(EEG);');
+uimenu( submenu, 'label', 'Run RELICA', 'callback', 'EEG = pop_relica(EEG);');
+uimenu( submenu, 'label', 'Load RELICA from disk', 'callback', 'EEG = pop_relica_load(EEG);');
+uimenu( submenu, 'label', 'Plot results', 'callback', 'EEG = pop_relica_plots(EEG);');
 uimenu( submenu, 'label', 'Apply RELICA to main dataset', 'callback', 'EEG.icawinv = EEG.etc.RELICA.A_real; EEG.icaweights = EEG.etc.RELICA.W_real; EEG.icasphere = eye(size(EEG.data,1)); EEG= eeg_checkset(EEG); disp(''Applying weights to dataset... Done!'')');
