@@ -25,6 +25,8 @@
 %                        run data samples are resampled with repetition. 
 %                        This is the default option
 %   folder_relica - select the output folder.
+%   compflag      - {'local', 'nsg'} Flag to direct computation to NSG ('nsg') or  
+%                   or to local computer ('local'). Default: 'local'
 %  
 % Optional inputs:
 % These options must be provided as a  pair: 'optname', optvalue
@@ -34,11 +36,9 @@
 %   'parpools'        - Number of workers to use in the parallelization. 
 %                       The default is the maximum number of MATLAB workers in your
 %                       system (usually the number of cores). This option
-%                       can not be used if the option below ('nsgflag') is
-%                       set to [1].
-%   'nsgflag'         - [0|1] Flag to enable [1] or disable [0] computation
-%                       on NSG. Default: 0
-%   The options below require 'nsgflag' set to [1] 
+%                       can not be used if the option below ('compflag') is
+%                       set to 'nsg'.
+%   The options below require 'compflag' set to 'nsg' 
 %   'jobid'           - String with the client job id. This was assigned to the
 %                       job when created. Use with command line option option 'run'. 
 %                       Default: Prefix 'relicansg_' trailed by five digit random number. e.g 'relicansg_616402'
@@ -89,7 +89,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [EEG]=relica(EEG,M,algo,mode_relica, folder_relica,varargin)
+function [EEG]=relica(EEG,M,algo,mode_relica, folder_relica, compflag, varargin)
 
 if isstruct(EEG)
     data = EEG.data;
@@ -97,6 +97,7 @@ if isstruct(EEG)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%% PART 1: ESTIMATION %%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if nargin <5; compflag = 'local'; end
     if nargin <5; folder_relica = fullfile(pwd,'relicaoutput'); end
     if nargin <4; mode_relica = 'point'; end
     if nargin <3; algo = 'beamica'; end
@@ -115,9 +116,8 @@ if isstruct(EEG)
     catch
         disp('RELICA_nsg() error: calling convention {''key'', value, ... } error'); return;
     end
-    try g.nsgflag;                          catch, g.nsgflag       =  0;                                               end 
     try g.icaopt;                           catch, g.icaopt        =  {};                                              end 
-    if  g.nsgflag
+    if  strcmpi(compflag, 'nsg')
         try g.jobid = ['relicansg_' g.jobid];   catch, g.jobid         =  ['relicansg_' num2str(floor(rand(1)*1000000))];  end
         try g.runtime;                          catch, g.runtime       =  0.5;                                             end
     else
@@ -133,8 +133,8 @@ if isstruct(EEG)
     
     %%%%%%% Check mode %%%%%%%%%%%%%%%%%%%%%
     sR.mode='both';
-    %-------------------- NSG --------------------
-    if ~ g.nsgflag
+    %-------------------- Local computation --------------------
+    if strcmpi(compflag, 'local')
         
         %%%%%%% estimation %%%%%%%%%%%%%%%%%%%%%
         k=0; index=[]; tempi = zeros(1,M);

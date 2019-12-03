@@ -7,11 +7,11 @@
 %
 %
 % Usage:
-%   >>  EEG = pop_relica(EEG,M,algo,mode_relica, folder_relica);                 % Local computation call
-%   >>  EEG = pop_relica(EEG,M,algo,mode_relica, folder_relica, 'runtime', 0.5); % NSG computation call
-%   >>  EEG = pop_relica(EEG);                                                   % pop up interactive window
-%   >>  EEG = pop_relica('relicansg_myjobID');                                   % Retreive/continue RELICA 
-%                                                                                  computation performed at NSG
+%   >>  EEG = pop_relica(EEG,M,algo,mode_relica, folder_relica);                        % Local computation call
+%   >>  EEG = pop_relica(EEG,M,algo,mode_relica, folder_relica, 'nsg', 'runtime', 0.5); % NSG computation call
+%   >>  EEG = pop_relica(EEG);                                                          % pop up interactive window
+%   >>  EEG = pop_relica('relicansg_myjobID');                                          % Retreive/continue RELICA 
+%                                                                                         computation performed at NSG
 %
 % Inputs:
 %   EEG         - Input dataset in the case of running RELICA on a local computational
@@ -33,6 +33,8 @@
 %                        run data samples are resampled with repetition. 
 %                        This is the default option
 %   folder_relica - select the output folder.
+%   compflag      - {'local', 'nsg'} Flag to direct computation to NSG ('nsg') or  
+%                   or to local computer ('local'). Default: 'local'
 %
 % Optional inputs:
 % These options must be provided as a  pair: 'optname', optvalue
@@ -42,11 +44,9 @@
 %   'parpools'        - Number of workers to use in the parallelization. 
 %                       The default is the maximum number of MATLAB workers in your
 %                       system (usually the number of cores). This option
-%                       can not be used if the option below ('nsgflag') is
-%                       set to [1].
-%   'nsgflag'         - [0|1] Flag to enable [1] or disable [0] computation
-%                       on NSG. Default: 0
-% The options below require 'nsgflag' set to [1] 
+%                       can not be used if the option below ('compflag') is
+%                       set to 'nsg'.
+%  The options below require 'compflag' set to 'nsg' 
 %   'jobid'           - String with the client job id. This was assigned to the
 %                       job when created. Use with command line option option 'run'. 
 %                       Default: Prefix 'relicansg_' trailed by five digit random number. e.g 'relicansg_616402'
@@ -61,7 +61,7 @@
 %    'Bootstraps'      - Correspond to input 'M'
 %    'Output folder'   - Correspond to input 'folder_relica'
 %    'NSG options'     - RELICA options non specific to NSG ('jobid', 'runtime')
-%    'Compute on NSG'  - Correspond to input 'nsgflag'
+%    'Compute on NSG'  - Correspond to input 'compflag'
 %    'NSG options'     - Currently allows only options 'jobid' and 'runtime'. 
 %                        The number of options may increase in the feature.
 % 
@@ -146,12 +146,12 @@ if isstruct(EEG)
     if ~exist('algo', 'var'),          algo          = 'beamica';                     end
     if ~exist('mode_relica', 'var'),   mode_relica   = 'point';                       end
     if ~exist('folder_relica', 'var'), folder_relica = fullfile(pwd,'relicaoutput');  end
+    if ~exist('compflag', 'var'),      compflag      = 'local';                       end
     
     g = finputcheck(varargin, ...
                             {'icaopt'           'cell'     ''                    {} ; ...  % NSG specific
                              'jobid'            'string'   ''              jobiddef ; ...  % NSG specific
-                             'runtime'          'real'     [0.1 48]        0.5 ; ...       % NSG specific
-                             'nsgflag'          'real'     [0 1]           0});            % NSG specific
+                             'runtime'          'real'     [0.1 48]        0.5}) ;         % NSG specific
     if ischar(g), error(g); end
     
     if nargin < 5
@@ -178,8 +178,8 @@ if isstruct(EEG)
             {'style' 'text' 'string' 'Bootstraps'}     {'style' 'edit'       'string' num2str(M)    'tag' 'nboots'}...
             {'style' 'text' 'string' 'Output folder'}  {'style' 'edit'       'string' folder_relica 'tag' 'relicafolder'} {'style' 'pushbutton' 'string' 'Browse...'   'tag' 'filebrowse' 'callback' cbfolder}...
             {'style' 'text' 'string' 'RELICA options'} {'style' 'edit'       'string' ' '           'tag' 'relicaopt'}...
-            {'style' 'text' 'string' 'Compute on NSG'} {'style' 'checkbox' 'tag' 'chckbx_nsgt' 'callback' nsgcheck 'value' g.nsgflag}...
-            {'style' 'text' 'string' 'NSG options'}    {'style' 'edit'       'string' ' '           'tag' 'nsgopt' 'enable' fastif( g.nsgflag, 'on','off')}};
+            {'style' 'text' 'string' 'Compute on NSG'} {'style' 'checkbox' 'tag' 'chckbx_nsgt' 'callback' nsgcheck 'value' fastif(strcmpi(compflag,'nsg'), 1, 0)}...
+            {'style' 'text' 'string' 'NSG options'}    {'style' 'edit'       'string' ' '           'tag' 'nsgopt' 'enable' fastif( strcmpi(compflag,'nsg'), 'on','off')}};
         %%
         ht = 6; wt = 4.5;   c1 = 0; c2 = 1; c3 = 3; c4 = 4;
         geom = { {wt ht [c1 0]  [1 1]}  {wt ht [c2 0] [3.5 1]} ...
@@ -199,7 +199,8 @@ if isstruct(EEG)
         if ~isempty(result{4}) && exist(result{4},'dir'), folder_relica = result{4}; else, errorflag=1; end
          
         % NSG options
-        args = {'nsgflag',result{6}};
+        compflag = fastif(result{6}, 'nsg', 'local');
+        args = {};
         if result{6}
             tmpoptparams = eval(['{' result{7} '}']);
             if ~isempty(tmpoptparams)
@@ -232,7 +233,7 @@ if isstruct(EEG)
         args = varargin;
     end
     
-    EEGout = relica(EEG,M,algo,mode_relica,folder_relica,args{:});
+    EEGout = relica(EEG,M,algo,mode_relica,folder_relica, compflag, args{:});
 else
     if ~ nsginstalled_flag
         error('Plugin nsgportal needs to be in the MATLAB path');
@@ -274,9 +275,9 @@ if isstruct(EEG)
             end
             count = count + 2;
         end
-        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''',' tmparg ');' ];
+        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''', ''' compflag ''',' tmparg ');' ];
     else
-        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''');' ];
+        com = ['EEG = pop_relica(EEG, ' num2str(M) ', ''' algo ''', ''' mode_relica ''', ''' folder_relica ''', ''' compflag ''');' ];
     end
 else
     com = 'EEG = pop_relica(EEG)';

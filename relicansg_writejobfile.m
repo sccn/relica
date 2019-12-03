@@ -51,6 +51,6 @@ fprintf(fid, 'folder_relica = eval(''fullfile(pwd, ''''relicaoutput'''')'');\n')
 fprintf(fid, 'icaopt     = eval(''%s'');\n', opttext);
 
 % Calling relica
-fprintf(fid,'[EEG]=relica(EEG,M,algo,mode_relica, folder_relica,''icaopt'', icaopt);\n');
+fprintf(fid,'[EEG]=relica(EEG,M,algo,mode_relica, folder_relica,''local'',''icaopt'', icaopt);\n');
 fprintf(fid,'pop_saveset(EEG,''filename'', EEG.filename, ''filepath'', pwd)');
 fclose(fid);
