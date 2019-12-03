@@ -112,7 +112,7 @@ Author:  Dr. Fiorenzo Artoni, 2019
 
 This project was in part supported by the European Union's Horizon 2020 research and innovation programme under Marie Sklodowska-Curie Action agreement no. 750947 (BIREHAB)
 
-Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for making the algorithm available and parallelized on the NSG server, for including other ICA algorithms
+Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for parallelizing RELICA code and implement its extension for computation on NSG HPC resources, including other ICA algorithms, reworked all GUI and generate the online documentation with Scott Makeig.
 
 Acknowledgments go also to Prof. Arnaud Delorme and Prof. Scott Makeig (SCCN/INC/UCSD 2019) for the inputs and ideas to perfect the project.
 
