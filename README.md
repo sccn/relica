@@ -95,7 +95,7 @@ To plot the scalp maps of the ICs in a single IC cluster, select option **Cluste
 
 Above, each figure panel shows the scalp map for a member of the selected IC cluster (default: 1), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
 
-## Running and visualizing RELICA from MATLAB command line
+## Running and visualizing RELICA from the MATLAB command line
 Running RELICA, either locally or using NSG, and retrieving and visualizing the results can also be performed from the MATLAB command line or by a MATLAB script. For syntax of these calls, refer to the help messages for the functions *pop\_relica.m*  and *pop\_relica_results.m*.
 
 ## References
@@ -117,6 +117,8 @@ This project was in part supported by the European Union's Horizon 2020 research
 Acknowledgments to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for parallelizing the RELICA code and implementing its extension for computation on NSG HPC resources, including other ICA algorithms, reworking all the GUIs and generating the online documentation with Scott Makeig.
 
 Acknowledgments also to Prof. Arnaud Delorme and Prof. Scott Makeig (SCCN/INC/UCSD 2019) for input and ideas to perfect the project.
+
+EEGLAB [https://sccn.ucsd.edu/eeglab/] and many of its plug-in packages were created and are maintained at the Swartz Center for Computational Neuroscience, UCSD [https://sccn.ucsd.edu] directed by Scott Makeig. Arnaud Delorme is the chief EEGLAB software architect.
 
 Clustering and relative visualization within RELICA makes use of  modified  routines from J. Himberg's open source FastICA - ICASSO package
 
