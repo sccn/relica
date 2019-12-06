@@ -1,10 +1,10 @@
-# RELICA plug-in to EEGLAB
+# RELICA -- EEGLAB plug-in
 
 ## What is RELICA
-Independent Component Analysis (ICA) is a widely applied data-driven method for parsing brain and non-brain EEG source signals, mixed by volume conduction to the scalp electrodes, into a set of maximally temporally and functionally independent components (ICs). Many ICs may be identified with a precise physiological or non-physiological origin. However, this process is hindered by partial instability in ICA results that can arise from noise in the data. Here we describe the use of an EEGLAB extension to perform RELICA (for ‘RELiable ICA’), a novel statistical method for characterizing the reliability of component processes identified by ICA decomposition ([Artoni et al., 2014](https://www.sciencedirect.com/science/article/pii/S1053811914007526)). 
-The goal of RELICA is to identify independent component (IC) processes that are stably separated from the data across many combinations of its data frames or epochs. Results of RUNICA can be used to reduce the risk of basing conclusions about individual ICs or of building between-subject IC clusters on statistically unstable or physiologically un-interpretable component processes.
-RELICA first decomposes the data using an ICA algorithm of choice (typically AMICA). Then, it performs multiple decompositions of bootstrap versions of the input data (as many data frames or epochs as are in the training data, selected at random from the data with substitution). To speed the computation, the user may select a faster (though somewhat less effective) ICA algorithm to use for these decompositions. 
-Next, for each IC in each decomposition RELICA computes the dipolarity of the IC scalp map, a measure of physiological plausibility ([Delorme et al., 2012](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0030135)). RELICA then clusters the separated ICs from all the decompositions based on correlations between their time courses. The number of clusters is the number of data channels and ICs. When a bootstrap dataset contributed two or more ICs to a single cluster, that bootstrap decomposition is removed from the computation since it very likely failed to converge. Each cluster can then be identified with an exemplar IC, selected to be the IC nearest to the cluster centroid in the clustering measure space. A measure, QLc, of the compactness of the bootstrap IC clusters provides a within-subject measure of IC reliability for each IC. RELICA can also return informative visualizations of its results. 
+Independent Component Analysis (ICA) is a widely applied data-driven method for parsing brain and non-brain EEG source signals, mixed by volume conduction to the scalp electrodes, into a set of maximally temporally and functionally independent component (IC) processes. Many ICs may be identified with a precise brain physiological (or non-brain) origin. However, this process is hindered by partial instability in ICA results that can arise from noisy, nonstationary, or insufficient data. Here we describe the use of an EEGLAB extension to perform RELICA (for ‘RELiable ICA’) decomposition, a novel statistical method for characterizing the reliability of component processes identified by ICA decomposition by Fiorenzo Artoni ([Artoni et al., 2014](https://www.sciencedirect.com/science/article/pii/S1053811914007526)). 
+The goal of RELICA is to identify independent component (IC) processes that are most stably separated from the decomposition data across many bootstrap selections of its data frames or epochs. Results of RUNICA can be used to judge confidence in conclusions drawn about individual ICs or about the stability of between-subject IC clusters.
+RELICA first decomposes the data using an ICA algorithm of choice -- typically AMICA, the most powerful ICA approach for EEG decomposition (Delorme et al., 2012). It then performs multiple decompositions of bootstrap surrogate versions of the input data (as many data frames or epochs as are in the training data, selected at random from the data with substitution). To speed the computation, the user may choose a faster (though somewhat less effective) ICA algorithm to use for these decompositions. 
+Next, for each IC in each decomposition RELICA computes the dipolarity of the IC scalp map, a measure of physiological plausibility ([Delorme et al., 2012](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0030135)). It then clusters the separated ICs from the surrogate decompositions based on correlations between their time courses. The number of clusters is the number of ICs computed (typically, the number of input channels). When a bootstrap dataset contributes two or more ICs to one cluster, that bootstrap decomposition is removed from the computation as it likely failed to converge. Each cluster can then be identified with an exemplar IC, selected as the IC nearest to the cluster centroid in the clustering measure space. A measure, QLc, of the compactness of the bootstrap IC clusters provides a within-subject measure of IC reliability for each IC. RELICA can also return informative visualizations of its results. 
 
 ## Installing the RELICA plug-in to EEGLAB
 All plug-ins in EEGLAB, including RELICA, can be installed in two ways. To install RELICA:
@@ -26,7 +26,7 @@ To run RELICA on the loaded dataset, first launch the main RELICA (*pop\_relica*
 
 From the resulting RELICA main window (above right) we can specify:
 
-1. The ICA decomposition algorithm to use (**ICA Method**) – the default is EEGLAB runica implementing extended Infomax ICA; other, faster alternatives are also supported.
+1. The ICA decomposition algorithm to use (**ICA Method**) – the default is EEGLAB 'runica' which implements extended Infomax ICA; other, faster alternative decomposition approaches are also supported.
 2. How RELICA does the bootstrapping (**RELICA mode**) – frame-by-frame or trial-by-trial 
 3. The number of bootstrap versions to decompose (**Bootstraps**) – the default is 50
 4. The pathname of the folder in which to save the RELICA results (**Output folder**)
@@ -34,8 +34,8 @@ From the resulting RELICA main window (above right) we can specify:
 
 The rest of the interface elements will be introduced in the next section.
 
-### Running RELICA using NSG
-To run the costliest part of the RELICA computation on an XSEDE network supercomputer via the Open EEGLAB Portal to the Neuroscience Gateway (NSGportal.org), **you must first obtain a free NSG user credential** and have the EEGLAB plug-in [nsgportal](https://github.com/sccn/nsgportal/) already installed in your computer. For how to do this, [see this page](https://github.com/sccn/nsgportal/wiki).
+### Running RELICA on high-performance computing resources using The Neuroscience Gateway (NSGportal.org)
+To run the RELICA computation on an XSEDE network supercomputer via the Open EEGLAB Portal to the Neuroscience Gateway (NSGportal.org), **you must first obtain a free NSG user credential** and have the EEGLAB plug-in [nsgportal](https://github.com/sccn/nsgportal/) installed in your computer. For how to do this, [see this page](https://github.com/sccn/nsgportal/wiki).
 
 Then, from the RELICA main window shown above:
 
@@ -44,25 +44,24 @@ Then, from the RELICA main window shown above:
 
 The RELICA window **Help** button will display the RELICA (*pop\_relica.m)* function help message, which lists all available options.
 
-### Example: running RELICA locally. 
-In the test case example (shown below), we select the ICA method BEAMICA (implementing non-extended Infomax, but quite fast) and set the number of bootstrap decompositions to 100 (default value is 50). We set the RELICA results folder to be the data folder ( *../eeglab/sample_data/*). We leave the other selections to use their default values.
+### Example 1: running RELICA locally. 
+In the test case example (shown below), we select  ICA method BEAMICA (implementing non-extended Infomax, but quite fast) and set the number of bootstrap decompositions to 100 (default value is 50). We set the RELICA results folder to be the data folder ( *../eeglab/sample_data/*). We leave the other selections to use their default values.
 
 <img src="./images/relica_gui1_example1.jpg" width="400">
 
-### Example: running RELICA using NSG. 
+### Example 2: running RELICA using NSG. 
 The lengthiest step in RELICA is performing the initial and repeated bootstrap ICA decompositions. If the dataset is large (and/or the number of bootstraps specified is large), this process may be lengthy. However, this section of the process is parallelized, allowing RELICA to take good advantage of the HPC resources made available to EEGLAB users by NSG. We have included Open EEGLAB Portal code in RELICA to allow users to perform this computationally costly portion of the RELICA algorithm via NSG. This processing is managed from the same *pop\_relica* window shown above. 
 
-To perform RELICA computation in NSG **you must have an NSG account** and have the EEGLAB plug-in nsgportal already installed in your computer. See the [*nsgportal* wiki](https://github.com/sccn/nsgportal/wiki) for more details. Once the nsgportal plug-in is installed on your computer, and the NSG credentials and settings are set, you can easily perform the RELICA bootstrap decompositions via NSG by checking the *pop\_relica* window checkbox **Compute on NSG**. Additional NSG parameters, including requested running time and custom *jobID*, can be set in the edit window **NSG options**. For more options, see the *pop\_relica* help message (using **Help**). To run RELICA with the selected settings, press  **OK**. 
+To perform RELICA computation in NSG **you must have an NSG account** and have the EEGLAB plug-in nsgportal already installed in your computer. See the [*nsgportal* wiki](https://github.com/sccn/nsgportal/wiki) for more details. Once the nsgportal plug-in is installed on your computer, and the NSG credentials and settings are set, you can easily perform the RELICA bootstrap decompositions via NSG by checking the *pop\_relica* window checkbox **Compute on NSG**. Additional NSG parameters, including requested maximum run time (<=48 hours) and custom *jobID* name, can be set in the edit window **NSG options**. For more options, see the *pop\_relica* help message (using **Help**). To run RELICA with the selected settings, press  **OK**. 
 If no custom *jobID* is provided as an NSG option, *pop\_relica* will assign a jobID consisting on the prefix '*relicansg\_*' followed by six random digits (such as: *relicansg\_123456*). This jobID will be shown in the MATLAB command window when the NSG job is issued. To track the status of the job, see the *pop\_nsg* window; locate your job there using the jobID assigned to your RELICA job.
 
 ## Retrieving RELICA results
 There are three ways to access the RELICA output:
 
-1.* Following local computation:* In the same EEGLAB session in which RELICA was run, RELICA results will be stored in the EEG structure subfield EEG.etc.RELICA
-2. *Loading a saved RELICA computation:* To load RELICA results file information into the EEG structure of the currently loaded dataset, select EEGLAB menu item **Tools > RELICA > Load RELICA from disk** and then select the *RELICA.mat* file corresponding to the loaded dataset.
-3. *Following NSG-assisted computation:* If the **Compute on NSG** option was selected in the RELICA window and the resulting NSG job its complete (learn how to check its status [here](https://github.com/sccn/nsgportal/wiki/nsgportal-graphical-user-interface:-pop_nsg)), use the *jobID* of your RELICA job to retrieve its results. For example, if the selected (custom) RELICA *jobID* were *relicatest_data* you may execute the following code from the MATLAB command window.  
+1.***Following local computation:*** In the same EEGLAB session in which RELICA was run, RELICA results will be stored in the EEG structure subfield EEG.etc.RELICA
+2. *Loading the RELICA results:* To load RELICA results file information into the EEG structure of the currently loaded dataset, select EEGLAB menu item **Tools > RELICA > Load RELICA from disk** and then select the *RELICA.mat* file corresponding to the loaded dataset.
+3. ***Following NSG-assisted computation:*** If the **Compute on NSG** option was selected in the RELICA window and the resulting NSG job its complete (learn how to check its status [here](https://github.com/sccn/nsgportal/wiki/nsgportal-graphical-user-interface:-pop_nsg)), use the *jobID* of your RELICA job to retrieve its results. For example, if the selected (custom) RELICA *jobID* were *relicatest_data* you may execute the following code from the MATLAB command window.  
 ```>> EEG = pop_relica('relicatest_data');```
-
 After performing any of these steps, the RELICA results of your job will be stored in the EEG data structure subfield *EEG.etc.RELICA*.
 
 ## Visualizing RELICA results
@@ -89,7 +88,7 @@ To plot the scalp maps of the ICs in a single IC cluster, select option **Cluste
 
  <img src="./images/relica_cluster1.jpg" width="400">
 
- Above, each figure panel shows the scalp map for a member of the selected IC cluster (default: 1), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
+Above, each figure panel shows the scalp map for a member of the selected IC cluster (default: 1), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
 
 ## Running and visualizing RELICA from MATLAB command line
 Running RELICA, either locally or using NSG, and retrieving and visualizing the results can also be performed from the MATLAB command line or by a MATLAB script. For syntax of these calls, refer to the help messages for the functions *pop\_relica.m*  and *pop\_relica_results.m*.
@@ -100,11 +99,7 @@ Running RELICA, either locally or using NSG, and retrieving and visualizing the 
 
 2) Artoni, F., Delorme A., Makeig S. (2018) *Applying dimension reduction to EEG data by Principal Component Analysis reduces the quality of its subsequent Independent Component decomposition*, Neuroimage 175 176-187
 
-## References
-
-1) Artoni, F., Menicucci, D., Delorme, A., Makeig, S., & Micera, S. (2014). *RELICA: a method for estimating the reliability of independent components*. NeuroImage, 103, 391-400.          
-
-2) Artoni, F., Delorme A., Makeig S. (2018) *Applying dimension reduction to EEG data by Principal Component Analysis reduces the quality of its subsequent Independent Component decomposition*, Neuroimage 175 176-187
+3) Delorme, A., Palmer, J., Onton, J., Oostenveld, R. and Makeig, S., 2012. *Independent EEG sources are dipolar.* PloS One, 7(2), p.e30135.
 
 ## Acknowledgments
 
@@ -112,9 +107,9 @@ Author:  Dr. Fiorenzo Artoni, 2019
 
 This project was in part supported by the European Union's Horizon 2020 research and innovation programme under Marie Sklodowska-Curie Action agreement no. 750947 (BIREHAB)
 
-Acknowledgments go to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for parallelizing RELICA code and implement its extension for computation on NSG HPC resources, including other ICA algorithms, reworked all GUI and generate the online documentation with Scott Makeig.
+Acknowledgments to Ramon Martinez-Cancino (SCCN/INC/UCSD 2019) for parallelizing the RELICA code and implementing its extension for computation on NSG HPC resources, including other ICA algorithms, reworking all the GUIs and generating the online documentation with Scott Makeig.
 
-Acknowledgments go also to Prof. Arnaud Delorme and Prof. Scott Makeig (SCCN/INC/UCSD 2019) for the inputs and ideas to perfect the project.
+Acknowledgments also to Prof. Arnaud Delorme and Prof. Scott Makeig (SCCN/INC/UCSD 2019) for input and ideas to perfect the project.
 
 Clustering and relative visualization within RELICA makes use of  modified  routines from J. Himberg's open source FastICA - ICASSO package
 
