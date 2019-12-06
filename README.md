@@ -1,4 +1,4 @@
-# RELICA -- EEGLAB plug-in
+# The RELICA EEGLAB plug-in
 
 ## What is RELICA
 Independent Component Analysis (ICA) is a widely applied data-driven method for parsing brain and non-brain EEG source signals, mixed by volume conduction to the scalp electrodes, into a set of maximally temporally and functionally independent component (IC) processes. Many ICs may be identified with a precise brain physiological (or non-brain) origin. However, this process is hindered by partial instability in ICA results that can arise from noisy, nonstationary, or insufficient data. Here we describe the use of an EEGLAB extension to perform RELICA (for ‘RELiable ICA’) decomposition, a novel statistical method for characterizing the reliability of component processes identified by ICA decomposition by Fiorenzo Artoni ([Artoni et al., 2014](https://www.sciencedirect.com/science/article/pii/S1053811914007526)). 
