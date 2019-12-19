@@ -76,9 +76,9 @@ Once the RELICA run is complete and its results retrieved, we can visualize the 
 #### Plot type 1: Bootstrap IC clusters.
 This will generate a plot showing the relative compactness of, and relationships between clusters of similar ICs returned by the bootstrap decompositions, with inter-IC distances visualized in 2-D using Curvilinear Component Analysis ([Himberg et al., 2004](https://www.sciencedirect.com/science/article/pii/S1053811904001661)). Select the **Plot type** option **Bootstrap IC clusters** from the *pop\_relica\_results* window (above right) and press **Plot**. A figure similar to that below will be displayed. This figure shows the 2-D CCA projection of IC distances in clustering space, in particular highlighting the differences in quality (compactness, stability, reproducibility) of the IC clusters.
 
-<img src="./images/relica_clusters.jpg" width="400">
+<img src="./images/relica_clusters.jpg" width="600">
 
-In the figure above, the colored dots are individual bootstrap ICs. Here dot color represents the cluster they belong to. Cluster centroids are represented by dots of the same color, but have a black border, the cluster number indicated next to it. Note the difference in cluster compactness (i.e., IC reproducibility across bootstrap decompositions) of Cluster 2 (left) versus Cluster 25 (right). 
+In the figure above, the colored dots are individual bootstrap ICs. Here dot color represents the cluster they belong to. Cluster centroids are represented by dots of the same color, but have a black border, the cluster number indicated next to it. Note the difference in cluster compactness (i.e., IC reproducibility across bootstrap decompositions) of Cluster 2 (center) versus Cluster 14 (right). 
 
 #### Plot type 2: Cluster exemplar maps
 Select the option **Cluster exemplar maps** from the **Plot type** menu in the *pop\_relica_results* window, then press **Plot**. A figure like the one below will be displayed.
@@ -88,11 +88,11 @@ Select the option **Cluster exemplar maps** from the **Plot type** menu in the *
 Above, the title of each plot panel shows the cluster number and the component stability index from [Himberg et al. 2004](https://www.sciencedirect.com/science/article/pii/S1053811904001661) (heuristic measure of the quality of the estimates, ideally 100%) for each IC cluster.
 
 #### Plot type 3: Cluster scalp maps
-To plot the scalp maps of the ICs in a single IC cluster, select option **Cluster scalp maps** and then specify the cluster number to plot (**Cluster to plot**), using the cluster numbers shown in the **Bootstrap IC clusters** plot (type 5 above, corresponding to IC 3). Specify the maximum number of IC scalp maps from the cluster to plot (**Max number of maps**). Pressing **Plot** displays the figure below.
+To plot the scalp maps of the ICs in a single IC cluster, select option **Cluster scalp maps** and then specify the cluster number to plot (**Cluster to plot**), using the cluster numbers shown in the **Bootstrap IC clusters** or **Cluster exemplar maps** plots (cluster 2 above). Specify the maximum number of IC scalp maps from the cluster to plot (**Max number of maps**). Pressing **Plot** displays the figure below.
 
  <img src="./images/relica_cluster1.jpg" width="400">
 
-Above, each figure panel shows the scalp map for a member of the selected IC cluster (default: 1), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
+Above, each figure panel shows the scalp map for a member of the selected IC cluster (Cluster 2), beginning with the first bootstrap. When the number of cluster ICs (and bootstraps) is large, only the requested number are shown (default: one page of 20 maps).
 
 ## Running and visualizing RELICA from the MATLAB command line
 Running RELICA, either locally or using NSG, and retrieving and visualizing the results can also be performed from the MATLAB command line or by a MATLAB script. For syntax of these calls, refer to the help messages for the functions *pop\_relica.m*  and *pop\_relica_results.m*.
