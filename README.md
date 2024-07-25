@@ -1,3 +1,5 @@
+<img src="./images/relica.png" width="600">
+
 # The RELICA EEGLAB plug-in
 
 ## What is RELICA?
