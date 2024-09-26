@@ -82,7 +82,7 @@ X = S*X;
 nP = length(P);
 P =  permute(cat(3,P{:}),[3 2 1]);
 
-fprintf('Running Beamica for %i iterations.\n',max_iter);
+fprintf('Running Beamica for %i iterations. Using %d splits\n',max_iter, numsplits);
 for i=1:numsplits
     ranges{i} = 1+floor((i-1)*N/numsplits) : min(N,floor(i*N/numsplits)); end
 if usegpu    

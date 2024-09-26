@@ -166,7 +166,23 @@ if isstruct(EEG)
             switch algo
                 case 'beamica'
                     if i==1; nrun = 1500; else; nrun = 1200; end % ensure real ICA is good
-                    [Wf,Sf] = beamica(in,{},eye(size(in,1)),pinv(sqrtm(cov(in'))),mean(in,2),nrun,0.5,0.5,false,true,true,1);
+                    % Parse beamica opts
+                    p = inputParser;
+                    addOptional(p, 'lrate', 0.5, @(x) isnumeric());
+                    addOptional(p, 'tradeoff', 0.5, @(x) isnumeric(x) && (x >= 0) && (x <= 1));
+                    addOptional(p, 'verbose', false);
+                    addOptional(p, 'usegpu', true);
+                    addOptional(p, 'convergence_check', false);
+                    addOptional(p, 'numsplits', 1);
+                    parse(p, g.icaopt{:});
+                    lrate = p.Results.lrate;
+                    tradeoff = p.Results.tradeoff;
+                    verbose = p.Results.verbose;
+                    usegpu = p.Results.usegpu;
+                    convergence_check = p.Results.convergence_check;
+                    numsplits = p.Results.numsplits;
+                    % Feed beamica with the parsed opts
+                    [Wf,Sf] = beamica(in,{},eye(size(in,1)),pinv(sqrtm(cov(in'))),mean(in,2),nrun,lrate,tradeoff,verbose,usegpu,convergence_check,numsplits);
                     W_ = Wf * Sf;
                     A_ = pinv(W_);
                     
